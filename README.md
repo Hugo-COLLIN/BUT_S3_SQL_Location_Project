@@ -1,6 +1,6 @@
 # Location de véhicules
 #### Hugo COLLIN, S3A
-L'application est exécutable en ligne de commande ou sous forme graphique.
+L'application est exécutable en ligne de commande.
 
 ## Ligne de commande :
 - Exécutez la commande (avec lgn et mdp vos identifiants de connexion à la base de données) :
