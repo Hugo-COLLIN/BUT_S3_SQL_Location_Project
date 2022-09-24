@@ -58,7 +58,7 @@ public class AccessData
     {
         this.pst = this.co.prepareStatement("SELECT * FROM Calendrier WHERE no_imm = ?", TYPE, MODE);
         this.pstSet(pst, new String[]{plate});
-        return "Booking calendar for this plate :\n" + this.displayPst();
+        return "Booking calendar for the vehicle with this plate :\n" + this.displayPst();
     }
 
     public String locAmount(String model, String locDuration) throws SQLException
