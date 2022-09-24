@@ -8,11 +8,6 @@ public class AccessData
     private final int TYPE = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private final int MODE = ResultSet.CONCUR_UPDATABLE;
 
-    public AccessData() throws ClassNotFoundException, SQLException
-    {
-
-    }
-
     /*
     --- SYSTEM METHODS ---
      */
@@ -53,6 +48,7 @@ public class AccessData
 
         if (loc == 1) locParam = "x";
         else locParam = null;
+
         this.pstSet(pst, new String[]{locParam, plate, stDate, endDate});
         pst.executeUpdate();
         return plateCalendar(plate);
@@ -114,7 +110,6 @@ public class AccessData
         final int NUM = rSMeta.getColumnCount();
 
         StringBuilder sb = new StringBuilder();
-
         sb.append(showColsName(rSMeta, NUM));
         while (rs.next())
             sb.append(showRow(rs, NUM));
@@ -154,10 +149,6 @@ public class AccessData
     /*
     --- GETTERS, SETTERS ANS REDEFINITIONS ---
      */
-    public Connection getCo() {
-        return co;
-    }
-
     @Override
     public String toString() {
         return "AccessData{" +
