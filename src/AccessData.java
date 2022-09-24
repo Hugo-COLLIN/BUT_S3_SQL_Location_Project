@@ -5,8 +5,6 @@ public class AccessData
     private Connection co;
     private Statement st;
     private PreparedStatement pst;
-    private String lastView;
-
     private final int TYPE = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private final int MODE = ResultSet.CONCUR_UPDATABLE;
 
@@ -29,12 +27,6 @@ public class AccessData
         return "Successfully connected to the database :)";
     }
 
-    public void pstSet(PreparedStatement pst, Object[] params) throws SQLException
-    {
-        for (int i = 0 ; i < params.length ; i ++)
-            pst.setObject(i + 1, params[i]);
-    }
-
     /*
     --- FEATURES --
      */
@@ -51,32 +43,30 @@ public class AccessData
         return this.displayPst();
     }
 
-    public String majCal(String immat, String stDate, String endDate, int loc) throws SQLException
+    public String majCal(String plate, String stDate, String endDate, int loc) throws SQLException
     {
+        String locParam;
         this.pst = this.co.prepareStatement("UPDATE Calendrier \n" +
                 "SET paslibre = ?\n" +
                 "WHERE no_imm = ?\n" +
                 "    AND datejour BETWEEN ? AND ?", TYPE, MODE);
 
-        String locParam;
         if (loc == 1) locParam = "x";
         else locParam = null;
-        this.pstSet(pst, new String[]{locParam, immat, stDate, endDate});
-
-        /*
-        if (loc == 1) pst.setString(1, "x");
-        else pst.setNull(1, Types.VARCHAR);
-        pst.setString(2, immat);
-        pst.setString(3, stDate);
-        pst.setString(4, endDate);
-
-         */
-
+        this.pstSet(pst, new String[]{locParam, plate, stDate, endDate});
         pst.executeUpdate();
-        return "Executed";
+        return plateCalendar(plate);
     }
 
-    public String locAmount(String model, String locDuration) throws SQLException {
+    public String plateCalendar(String plate) throws SQLException
+    {
+        this.pst = this.co.prepareStatement("SELECT * FROM Calendrier WHERE no_imm = ?", TYPE, MODE);
+        this.pstSet(pst, new String[]{plate});
+        return "Booking calendar for this plate :\n" + this.displayPst();
+    }
+
+    public String locAmount(String model, String locDuration) throws SQLException
+    {
         this.pst = this.co.prepareStatement("SELECT tarif.code_tarif, tarif_jour * MOD(?,7) + tarif_hebdo * FLOOR(?/7) AS Montant_location \n" +
                         "FROM tarif\n" +
                         "WHERE tarif.code_tarif = (\n" +
@@ -86,16 +76,11 @@ public class AccessData
                 TYPE, MODE);
 
         this.pstSet(pst, new String[]{locDuration, locDuration, model});
-        /*
-        pst.setString(1, locDuration);
-        pst.setString(2, locDuration);
-        pst.setString(3, model);
-                 */
-
         return this.displayPst();
     }
 
-    public String allCategsAgencies() throws SQLException {
+    public String allCategsAgencies() throws SQLException
+    {
         this.st = co.createStatement(TYPE, MODE);
         ResultSet rs = st.executeQuery("SELECT code_ag FROM Vehicule, Categorie\n" +
                 "WHERE categorie.code_categ = vehicule.code_categ\n" +
@@ -107,7 +92,8 @@ public class AccessData
         return display(rs);
     }
 
-    public String cliList2Models() throws SQLException {
+    public String cliList2Models() throws SQLException
+    {
         this.st = co.createStatement(TYPE, MODE);
         ResultSet rs = st.executeQuery("SELECT nom, ville, codpostal\n" +
                 "FROM Client, Dossier, Vehicule\n" +
@@ -122,7 +108,8 @@ public class AccessData
     /*
     --- DISPLAYING METHODS ---
      */
-    public String display(ResultSet rs) throws SQLException {
+    public String display(ResultSet rs) throws SQLException
+    {
         ResultSetMetaData rSMeta = rs.getMetaData();
         final int NUM = rSMeta.getColumnCount();
 
@@ -134,20 +121,16 @@ public class AccessData
         return sb.toString();
     }
 
-    public String displayPst() throws SQLException {
+    public String displayPst() throws SQLException
+    {
         ResultSet rs = pst.executeQuery();
         return display(rs);
     }
 
-    public void showExample() throws SQLException {
-        Statement st = co.createStatement();
-        ResultSet rS = st.executeQuery("SELECT * FROM Calendrier"); //SELECT * FROM Calendrier WHERE no_imm = ?
-        System.out.println("Résultats : ");
-        while (rS.next())
-            System.out.println(
-                    rS.getString(1) + "\t" +
-                            rS.getString(2) + "\t" +
-                            rS.getString(3) + "\t");
+    public void pstSet(PreparedStatement pst, Object[] params) throws SQLException
+    {
+        for (int i = 0 ; i < params.length ; i ++)
+            pst.setObject(i + 1, params[i]);
     }
 
     public String showRow(ResultSet rS, final int NUM) throws SQLException
@@ -178,7 +161,11 @@ public class AccessData
     @Override
     public String toString() {
         return "AccessData{" +
-                "lastView='" + lastView + '\'' +
+                "co=" + co +
+                ", st=" + st +
+                ", pst=" + pst +
+                ", TYPE=" + TYPE +
+                ", MODE=" + MODE +
                 '}';
     }
 }

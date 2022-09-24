@@ -12,7 +12,7 @@ public class Main
         Scanner sc = new Scanner(System.in);
         while (!end)
         {
-            System.out.print("Please choose an action :\n1. List of available vehicles\n" +
+            System.out.print("\nPlease choose an action :\n1. List of available vehicles\n" +
                     "2. MAJ booking calendar\n3. Location's amount\n4. Agencies with all vehicles' categories\n" +
                     "5. Clients who have located 2 different models \n6. Exit\n>> ");
             int choice = sc.nextInt();
@@ -34,7 +34,7 @@ public class Main
                     System.out.println("\n" + ad.listVehic(p1,p2,p3));
                     break;
                 case 2:
-                    System.out.print("Vehicle registration: ");
+                    System.out.print("Plate: ");
                     p1 = sc.nextLine();
                     System.out.print("Start date (DD/MM/YYYY): ");
                     p2 = sc.nextLine();
@@ -47,7 +47,6 @@ public class Main
                     while (i1 != 1 && i1 != 2);
 
                     System.out.println("\n" + ad.majCal(p1, p2, p3, i1));
-                    ad.showExample();
                     break;
                 case 3:
                     System.out.print("Model: ");
