@@ -78,6 +78,18 @@ public class AccessData
         return this.displayPst();
     }
 
+    public String allCategsAgencies() throws SQLException {
+        this.st = co.createStatement(TYPE, MODE);
+        ResultSet rs = st.executeQuery("SELECT code_ag FROM Vehicule, Categorie\n" +
+                "WHERE categorie.code_categ = vehicule.code_categ\n" +
+                "GROUP BY code_ag\n" +
+                "HAVING count(distinct Categorie.code_categ) = (\n" +
+                "    SELECT count(*) \n" +
+                "    FROM Categorie)");
+
+        return display(rs);
+    }
+
     public String cliList2Models() throws SQLException {
         this.st = co.createStatement(TYPE, MODE);
         ResultSet rs = st.executeQuery("SELECT nom, ville, codpostal\n" +

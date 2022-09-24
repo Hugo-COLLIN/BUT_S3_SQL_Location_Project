@@ -57,6 +57,7 @@ public class Main
                     System.out.println("\n" + ad.locAmount(p1,p2));
                     break;
                 case 4:
+                    System.out.println("\n" + ad.allCategsAgencies());
                     break;
                 case 5:
                     System.out.println("\n" + ad.cliList2Models());
