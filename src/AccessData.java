@@ -10,11 +10,14 @@ public class AccessData
     private final int TYPE = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private final int MODE = ResultSet.CONCUR_UPDATABLE;
 
-    public AccessData() throws ClassNotFoundException
+    public AccessData() throws ClassNotFoundException, SQLException
     {
 
     }
 
+    /*
+    --- SYSTEM METHODS ---
+     */
     public String loadDriver() throws ClassNotFoundException {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         return "Driver loaded";
@@ -26,6 +29,15 @@ public class AccessData
         return "Successfully connected to the database :)";
     }
 
+    public void pstSet(PreparedStatement pst, Object[] params) throws SQLException
+    {
+        for (int i = 0 ; i < params.length ; i ++)
+            pst.setObject(i + 1, params[i]);
+    }
+
+    /*
+    --- FEATURES --
+     */
     public String listVehic(String categ, String stDate, String endDate) throws SQLException
     {
         this.pst = this.co.prepareStatement("SELECT distinct Vehicule.no_imm, Vehicule.modele \n" +
@@ -35,11 +47,7 @@ public class AccessData
                 "    AND Vehicule.no_imm = Dossier.no_imm",
                 TYPE, MODE);
 
-        /*this.pstSet(pst, new String[]{categ, stDate, endDate});*/
-        pst.setString(1, categ);
-        pst.setString(2, stDate);
-        pst.setString(3, endDate);
-
+        this.pstSet(pst, new String[]{categ, stDate, endDate});
         return this.displayPst();
     }
 
@@ -50,18 +58,25 @@ public class AccessData
                 "WHERE no_imm = ?\n" +
                 "    AND datejour BETWEEN ? AND ?", TYPE, MODE);
 
+        String locParam;
+        if (loc == 1) locParam = "x";
+        else locParam = null;
+        this.pstSet(pst, new String[]{locParam, immat, stDate, endDate});
+
+        /*
         if (loc == 1) pst.setString(1, "x");
         else pst.setNull(1, Types.VARCHAR);
         pst.setString(2, immat);
         pst.setString(3, stDate);
         pst.setString(4, endDate);
 
+         */
 
         pst.executeUpdate();
         return "Executed";
     }
 
-    public String locAmount(String p1, String p2) throws SQLException {
+    public String locAmount(String model, String locDuration) throws SQLException {
         this.pst = this.co.prepareStatement("SELECT tarif.code_tarif, tarif_jour * MOD(?,7) + tarif_hebdo * FLOOR(?/7) AS Montant_location \n" +
                         "FROM tarif\n" +
                         "WHERE tarif.code_tarif = (\n" +
@@ -70,10 +85,12 @@ public class AccessData
                         "        AND Vehicule.code_categ = categorie.code_categ\n)",
                 TYPE, MODE);
 
-        /*this.pstSet(pst, new String[]{categ, stDate, endDate});*/
-        pst.setString(1, p2);
-        pst.setString(2, p2);
-        pst.setString(3, p1);
+        this.pstSet(pst, new String[]{locDuration, locDuration, model});
+        /*
+        pst.setString(1, locDuration);
+        pst.setString(2, locDuration);
+        pst.setString(3, model);
+                 */
 
         return this.displayPst();
     }
@@ -124,7 +141,7 @@ public class AccessData
 
     public void showExample() throws SQLException {
         Statement st = co.createStatement();
-        ResultSet rS = st.executeQuery("SELECT * FROM Calendrier");
+        ResultSet rS = st.executeQuery("SELECT * FROM Calendrier"); //SELECT * FROM Calendrier WHERE no_imm = ?
         System.out.println("Résultats : ");
         while (rS.next())
             System.out.println(
@@ -151,14 +168,8 @@ public class AccessData
         return res.toString();
     }
 
-    public void pstSet(PreparedStatement pst, Object[] params) throws SQLException
-    {
-        for (int i = 0 ; i < params.length ; i ++)
-            pst.setObject(i, params[i]);
-    }
-
     /*
-    --- GETTERS, SETTERS ANS REDEFINITIONS
+    --- GETTERS, SETTERS ANS REDEFINITIONS ---
      */
     public Connection getCo() {
         return co;
