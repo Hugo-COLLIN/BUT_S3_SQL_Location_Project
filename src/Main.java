@@ -25,21 +25,20 @@ public class Main
             switch (choice)
             {
                 case 1:
-                    System.out.print("--- List of available vehicles ---");
-                    System.out.print("Category : ");
+                    System.out.print("Category: ");
                     p1 = sc.nextLine();
-                    System.out.print("Start date (DD/MM/YYYY) : ");
+                    System.out.print("Start date (DD/MM/YYYY): ");
                     p2 = sc.nextLine();
-                    System.out.print("End date (DD/MM/YYYY) : ");
+                    System.out.print("End date (DD/MM/YYYY): ");
                     p3 = sc.nextLine();
-                    System.out.println(ad.listeVehic(p1,p2,p3));
+                    System.out.println("\n" + ad.listVehic(p1,p2,p3));
                     break;
                 case 2:
-                    System.out.print("Immat : ");
+                    System.out.print("Vehicle registration: ");
                     p1 = sc.nextLine();
-                    System.out.print("Start date (DD/MM/YYYY) : ");
+                    System.out.print("Start date (DD/MM/YYYY): ");
                     p2 = sc.nextLine();
-                    System.out.print("End date (DD/MM/YYYY) : ");
+                    System.out.print("End date (DD/MM/YYYY): ");
                     p3 = sc.nextLine();
                     do {
                         System.out.print("1: Add or 2: Cancel location : ");
@@ -47,8 +46,20 @@ public class Main
                     }
                     while (i1 != 1 && i1 != 2);
 
-                    System.out.println(ad.majCal(p1, p2, p3, i1));
-                    ad.show();
+                    System.out.println("\n" + ad.majCal(p1, p2, p3, i1));
+                    ad.showExample();
+                    break;
+                case 3:
+                    System.out.print("Model: ");
+                    p1 = sc.nextLine();
+                    System.out.print("Location duration: ");
+                    p2 = sc.nextLine();
+                    System.out.println("\n" + ad.locAmount(p1,p2));
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    System.out.println("\n" + ad.cliList2Models());
                     break;
                 case 6:
                     end = true;

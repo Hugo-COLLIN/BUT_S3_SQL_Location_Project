@@ -3,6 +3,7 @@ import java.sql.*;
 public class AccessData
 {
     private Connection co;
+    private Statement st;
     private PreparedStatement pst;
     private String lastView;
 
@@ -25,7 +26,7 @@ public class AccessData
         return "Successfully connected to the database :)";
     }
 
-    public String listeVehic(String categ, String stDate, String endDate) throws SQLException
+    public String listVehic(String categ, String stDate, String endDate) throws SQLException
     {
         this.pst = this.co.prepareStatement("SELECT distinct Vehicule.no_imm, Vehicule.modele \n" +
                 "FROM Vehicule, Dossier\n" +
@@ -39,16 +40,7 @@ public class AccessData
         pst.setString(2, stDate);
         pst.setString(3, endDate);
 
-        ResultSet rs = pst.executeQuery();
-        ResultSetMetaData rSMeta = rs.getMetaData();
-        final int NUM = rSMeta.getColumnCount();
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(showColsName(rSMeta, NUM));
-        while (rs.next())
-            sb.append(showRow(rs, NUM));
-        return sb.toString();
+        return this.displayPst();
     }
 
     public String majCal(String immat, String stDate, String endDate, int loc) throws SQLException
@@ -69,7 +61,56 @@ public class AccessData
         return "Executed";
     }
 
-    public void show() throws SQLException {
+    public String locAmount(String p1, String p2) throws SQLException {
+        this.pst = this.co.prepareStatement("SELECT tarif.code_tarif, tarif_jour * MOD(?,7) + tarif_hebdo * FLOOR(?/7) AS Montant_location \n" +
+                        "FROM tarif\n" +
+                        "WHERE tarif.code_tarif = (\n" +
+                        "    SELECT categorie.code_tarif FROM Vehicule, Categorie\n" +
+                        "    WHERE vehicule.modele = ?\n" +
+                        "        AND Vehicule.code_categ = categorie.code_categ\n)",
+                TYPE, MODE);
+
+        /*this.pstSet(pst, new String[]{categ, stDate, endDate});*/
+        pst.setString(1, p2);
+        pst.setString(2, p2);
+        pst.setString(3, p1);
+
+        return this.displayPst();
+    }
+
+    public String cliList2Models() throws SQLException {
+        this.st = co.createStatement(TYPE, MODE);
+        ResultSet rs = st.executeQuery("SELECT nom, ville, codpostal\n" +
+                "FROM Client, Dossier, Vehicule\n" +
+                "WHERE Client.code_cli = Dossier.code_cli\n" +
+                "    AND Dossier.no_imm = Vehicule.no_imm\n" +
+                "GROUP BY nom, ville, codpostal, modele\n" +
+                "HAVING count(modele) = 2");
+
+        return display(rs);
+    }
+
+    /*
+    --- DISPLAYING METHODS ---
+     */
+    public String display(ResultSet rs) throws SQLException {
+        ResultSetMetaData rSMeta = rs.getMetaData();
+        final int NUM = rSMeta.getColumnCount();
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(showColsName(rSMeta, NUM));
+        while (rs.next())
+            sb.append(showRow(rs, NUM));
+        return sb.toString();
+    }
+
+    public String displayPst() throws SQLException {
+        ResultSet rs = pst.executeQuery();
+        return display(rs);
+    }
+
+    public void showExample() throws SQLException {
         Statement st = co.createStatement();
         ResultSet rS = st.executeQuery("SELECT * FROM Calendrier");
         System.out.println("Résultats : ");
@@ -104,6 +145,9 @@ public class AccessData
             pst.setObject(i, params[i]);
     }
 
+    /*
+    --- GETTERS, SETTERS ANS REDEFINITIONS
+     */
     public Connection getCo() {
         return co;
     }
